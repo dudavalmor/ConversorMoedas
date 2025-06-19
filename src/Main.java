@@ -1,44 +1,59 @@
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException, InterruptedException {
-        Scanner leitura = new Scanner(System.in);
+    public static void main(String[] args) {
 
-        ConverteMoeda converteMoeda = new ConverteMoeda();
-        String sigla;
+        Scanner leia = new Scanner(System.in);
+        ConverteSigla converteSigla = new ConverteSigla();
+        Busca buscar = new Busca();
 
-        System.out.println("Bem-vindo(a) ao conversor de moeda!");
-        System.out.println("\n1) Real >>>>> Dolar");
-        System.out.println("2) Dolar >>>>> Real");
-        System.out.println("3) Euro >>>>> Real");
-        System.out.println("4) Real >>>>> Euro");
-        System.out.println("5) Guarani >>>>> Real");
-        System.out.println("6) Real >>>>> Guarani");
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+                .setPrettyPrinting()
+                .create();
+
+        String sigla = "";
+
+        System.out.println("Seja bem-vindo ao Conversor de Moedas!");
+        System.out.println("\n1) Real >> Dolar");
+        System.out.println("2) Real >> Euro");
+        System.out.println("3) Real >> Guarani");
+        System.out.println("4) Dolar >> Real");
+        System.out.println("5) Euro >> Real");
+        System.out.println("6) Guarani >> Real");
         System.out.println("7) Sair");
-        System.out.println("Escolha uma opção válida: ");
+        System.out.println("Digite a opção: ");
 
-        int opcao = leitura.nextInt();
-        System.out.println("Digite o valor: ");
-        float valor = leitura.nextFloat();
+        int opcao = leia.nextInt();
+        MoedaRecord moedaRecord = converteSigla.converter(opcao);
 
-        if (opcao == 1 || opcao == 4 || opcao == 6) {
-            sigla = "BRL";
-            Moeda moeda = converteMoeda.buscaMoeda(sigla, valor);
-        } else if (opcao == 2) {
-            sigla = "USD";
-            Moeda moeda = converteMoeda.buscaMoeda(sigla, valor);
-        } else if (opcao == 3) {
-            sigla = "EUR";
-            Moeda moeda = converteMoeda.buscaMoeda(sigla, valor);
-        } else if (opcao == 5) {
-            sigla = "PYG";
-            Moeda moeda = converteMoeda.buscaMoeda(sigla, valor);
-        } else if (opcao == 7) {
-            System.out.println("Finalizando...");
+        if (opcao != 7){
+            System.out.println("Digite o valor que deseja converter: ");
+            float valor = leia.nextFloat();
+
+            float taxa = buscar.buscarTaxa(moedaRecord);
+            float resultado = valor * taxa;
+
+            System.out.printf("%.2f %s convertidos para %s:\n", valor, moedaRecord.siglaBase(), moedaRecord.siglaConvertida());
+            System.out.printf("Taxa: %.4f\n", taxa);
+            System.out.printf("Valor convertido: %.2f\n", resultado);
         }
 
-        System.out.println("   Progarma finalizado!");
+        if (opcao == 7) {
+            System.out.println("Finalizando o programa....");
+        }
+
+        System.out.println("Programa finalizado.");
 
     }
 }
